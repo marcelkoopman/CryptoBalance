@@ -1,4 +1,4 @@
-import HttpActor.EthEUR
+import HttpActor.{BtcEUR, EthEUR}
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.util.Timeout
@@ -16,11 +16,8 @@ object CryptoBalance extends App{
   val httpActor = system.actorOf(HttpActor.props, "httpActor")
 
   implicit val timeout = Timeout(5 seconds)
-  val json = httpActor ? EthEUR
-  json.map {
-    json => println("eth = "+json)
-  }
-
+  (httpActor ? EthEUR).map { json => println("eth = "+json) }
+  (httpActor ? BtcEUR).map { json => println("btc = "+json) }
 
   sys.addShutdownHook( system.terminate() )
 
