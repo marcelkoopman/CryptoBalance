@@ -7,8 +7,6 @@ import akka.actor.ActorSystem
   */
 object CryptoBalance extends App {
 
-  println("CryptoBalance")
-
   val system = ActorSystem()
   val balanceActor = system.actorOf(BalanceActor.props, "balanceActor")
 

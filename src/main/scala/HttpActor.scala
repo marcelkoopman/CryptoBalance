@@ -7,6 +7,33 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import spray.json.DefaultJsonProtocol._
 import spray.json._
+
+/**
+  * Created by marcel on 17-4-17.
+  */
+
+object HttpActor {
+
+  def props: Props = Props[HttpActor]
+
+  implicit val priceResult = jsonFormat1(PriceResult)
+
+  case class PriceResult(EUR: BigDecimal)
+
+  implicit val ethPriceResult = jsonFormat3(EthPriceResult)
+
+  case class EthPriceResult(status: String, message: String, result: BigDecimal)
+
+  case class EthEUR()
+
+  case class BtcEUR()
+
+  case class EthBalance(address: String, price: BigDecimal)
+
+  case class BtcBalance(address: String, price: BigDecimal)
+
+}
+
 class HttpActor extends Actor with ActorLogging{
 
 
@@ -82,27 +109,4 @@ class HttpActor extends Actor with ActorLogging{
   }
 }
 
-/**
-  * Created by marcel on 17-4-17.
-  */
 
-object HttpActor {
-
-  def props: Props = Props[HttpActor]
-
-  implicit val priceResult = jsonFormat1(PriceResult)
-
-  case class PriceResult(EUR: BigDecimal)
-
-  implicit val ethPriceResult = jsonFormat3(EthPriceResult)
-
-  case class EthPriceResult(status: String, message: String, result: BigDecimal)
-
-  case class EthEUR()
-
-  case class BtcEUR()
-
-  case class EthBalance(address: String, price: BigDecimal)
-
-  case class BtcBalance(address: String, price: BigDecimal)
-}
