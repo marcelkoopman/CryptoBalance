@@ -61,9 +61,16 @@ class BalanceActor extends Actor with ActorLogging {
         log.info("First price {}", newPrice)
       } else {
         val high = priceHistory.values.max
-        if (newPrice > high) log.info("UP! {}", newPrice) else if (newPrice < high) log.info("DOWN {}", newPrice) else log.info("SAME {}", newPrice)
+        val diff = high - newPrice
+        if (diff < 0)
+          log.info("UP! {} by {}", newPrice, diff)
+        else if (diff > 0)
+          log.info("DOWN {} by {}", newPrice, diff)
+        else
+          log.info("SAME {}", newPrice)
       }
       priceHistory += (LocalDateTime.now() -> newPrice)
+      balanceMap.clear()
     }
   }
 

@@ -13,7 +13,7 @@ object CryptoBalance extends App {
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
 
-  system.scheduler.schedule(1 seconds, 15 seconds, balanceActor, RetrieveBalance())
+  system.scheduler.schedule(0 seconds, 15 seconds, balanceActor, RetrieveBalance())
 
   sys.addShutdownHook(system.terminate())
 
