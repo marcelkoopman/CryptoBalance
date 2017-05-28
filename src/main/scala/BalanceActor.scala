@@ -1,3 +1,5 @@
+import java.time.LocalDateTime
+
 import BalanceActor._
 import HttpActor.{BtcBalance, BtcEUR, EthBalance, EthEUR}
 import akka.actor.{Actor, ActorLogging, Props}
@@ -25,8 +27,12 @@ class BalanceActor extends Actor with ActorLogging {
 
   private val httpActor = context.actorOf(HttpActor.props, "httpActor")
 
+  private var balanceMap = scala.collection.mutable.Map[String, BigDecimal]()
+  private var priceHistory = scala.collection.mutable.Map[LocalDateTime, BigDecimal]()
+
   def receive = {
     case RetrieveBalance() =>
+      log.info("----------------------")
       log.info("Retrieving balances...")
       httpActor ! EthEUR
       httpActor ! BtcEUR
@@ -40,10 +46,25 @@ class BalanceActor extends Actor with ActorLogging {
       httpActor ! BtcBalance("1M693Ay4qWSS3o3mTbxhmBZ2h1dF9cdw48", price)
 
     case ReceiveEthBalance(price: BigDecimal) =>
-      log.info("Euro value of ETH = " + price)
+      balanceMap += ("ETH" -> price)
+      printTotalBalance
 
     case ReceiveBtcBalance(price: BigDecimal) =>
-      log.info("Euro value of BTC = " + price)
+      balanceMap += ("BTC" -> price)
+      printTotalBalance
+  }
+
+  private def printTotalBalance(): Unit = {
+    if (balanceMap.size == 2) {
+      val newPrice = balanceMap.values.sum
+      if (priceHistory.isEmpty) {
+        log.info("First price {}", newPrice)
+      } else {
+        val high = priceHistory.values.max
+        if (newPrice > high) log.info("UP! {}", newPrice) else if (newPrice < high) log.info("DOWN {}", newPrice) else log.info("SAME {}", newPrice)
+      }
+      priceHistory += (LocalDateTime.now() -> newPrice)
+    }
   }
 
 }
