@@ -32,7 +32,6 @@ class BalanceActor extends Actor with ActorLogging {
 
   def receive = {
     case RetrieveBalance() =>
-      log.info("Retrieving balances...")
       httpActor ! EthEUR
       httpActor ! BtcEUR
 
@@ -70,7 +69,7 @@ class BalanceActor extends Actor with ActorLogging {
       }
       priceHistory += (LocalDateTime.now() -> newPrice)
       balanceMap.clear()
-      log.info("----------------------")
+      log.info("----------------")
     }
   }
 
@@ -81,10 +80,8 @@ class BalanceActor extends Actor with ActorLogging {
     balanceMap.map {
       value => log.info("{} {}", value._1, euroFormat.format(value._2))
     }
+    log.info("Total {}", euroFormat.format(balanceMap.values.sum))
   }
 
   private def print(text: String, value: BigDecimal) = log.info("{} {}", text, euroFormat.format(value))
-
 }
-
-
