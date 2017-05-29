@@ -32,17 +32,14 @@ class BalanceActor extends Actor with ActorLogging {
 
   def receive = {
     case RetrieveBalance() =>
-      log.info("----------------------")
       log.info("Retrieving balances...")
       httpActor ! EthEUR
       httpActor ! BtcEUR
 
     case ReceiveEthEurPrice(price: BigDecimal) =>
-      log.info("Euro price ETH = " + price)
       httpActor ! EthBalance("0xbd31fa88f89699ff2eb3d66b449de77e79bb2053", price)
 
     case ReceiveBtcEurPrice(price: BigDecimal) =>
-      log.info("Euro price BTC = " + price)
       httpActor ! BtcBalance("1M693Ay4qWSS3o3mTbxhmBZ2h1dF9cdw48", price)
 
     case ReceiveEthBalance(price: BigDecimal) =>
@@ -56,24 +53,37 @@ class BalanceActor extends Actor with ActorLogging {
 
   private def printTotalBalance(): Unit = {
     if (balanceMap.size == 2) {
+      print(balanceMap)
       val newPrice = balanceMap.values.sum
       if (priceHistory.isEmpty) {
-        log.info("First price {}", newPrice)
+        //
       } else {
         val high = priceHistory.values.max
         val diff = newPrice - high
         if (diff == 0) {
           //
         } else if (diff < 0) {
-          log.info("DOWN {} by {} high still {}", newPrice, diff, high)
+          print("DOWN", diff)
         } else {
-          log.info("UP! {} by {} last high {}", newPrice, diff, high)
+          print("UP", diff)
         }
       }
       priceHistory += (LocalDateTime.now() -> newPrice)
       balanceMap.clear()
+      log.info("----------------------")
     }
   }
+
+  val euroFormat = java.text.NumberFormat.getCurrencyInstance
+  euroFormat.setMaximumFractionDigits(4)
+
+  private def print(balanceMap: scala.collection.mutable.Map[String, BigDecimal]) = {
+    balanceMap.map {
+      value => log.info("{} {}", value._1, euroFormat.format(value._2))
+    }
+  }
+
+  private def print(text: String, value: BigDecimal) = log.info("{} {}", text, euroFormat.format(value))
 
 }
 
