@@ -38,8 +38,8 @@ class BalanceActor extends Actor with ActorLogging {
     case ReceiveEthEurPrice(price: BigDecimal) =>
       httpActor ! EthBalance("0xbd31fa88f89699ff2eb3d66b449de77e79bb2053", price)
 
-    case ReceiveBtcEurPrice(price: BigDecimal) =>
-      httpActor ! BtcBalance("1M693Ay4qWSS3o3mTbxhmBZ2h1dF9cdw48", price)
+    case msg: ReceiveBtcEurPrice =>
+      httpActor ! BtcBalance("1DqdB2Ce8hpkX2XsU9aBmn2ZC2WW2UEXXL", msg.price)
 
     case ReceiveEthBalance(price: BigDecimal) =>
       balanceMap += ("ETH" -> price)
