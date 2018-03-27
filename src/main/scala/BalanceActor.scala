@@ -27,6 +27,9 @@ class BalanceActor extends Actor with ActorLogging {
 
   private val httpActor = context.actorOf(HttpActor.props, "httpActor")
 
+  import scala.collection.mutable.ListBuffer
+
+  private val memoryDump = new ListBuffer[String]()
   private var balanceMap = scala.collection.mutable.Map[String, BigDecimal]()
   private var priceHistory = scala.collection.mutable.Map[LocalDateTime, BigDecimal]()
 
@@ -52,6 +55,7 @@ class BalanceActor extends Actor with ActorLogging {
 
   private def printTotalBalance(): Unit = {
     if (balanceMap.size == 2) {
+      memoryDump += memoryDump + "" + balanceMap.size
       print(balanceMap)
       val newPrice = balanceMap.values.sum
       if (priceHistory.isEmpty) {
